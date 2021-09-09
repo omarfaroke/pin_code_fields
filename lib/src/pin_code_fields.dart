@@ -125,6 +125,9 @@ class PinCodeTextField extends StatefulWidget {
   /// Configuration for paste dialog. Read more [DialogConfig]
   final DialogConfig? dialogConfig;
 
+  /// Disable show paste dialog. Default is [false]
+  final bool diableShowPasteDialog;
+
   /// Theme for the pin cells. Read more [PinTheme]
   final PinTheme pinTheme;
 
@@ -226,6 +229,7 @@ class PinCodeTextField extends StatefulWidget {
     this.errorAnimationController,
     this.beforeTextPaste,
     this.dialogConfig,
+    this.diableShowPasteDialog = false,
     this.pinTheme = const PinTheme.defaults(),
     this.keyboardAppearance,
     this.validator,
@@ -776,20 +780,22 @@ class _PinCodeTextFieldState extends State<PinCodeTextField>
                   if (widget.onTap != null) widget.onTap!();
                   _onFocus();
                 },
-                onLongPress: widget.enabled
-                    ? () async {
-                        var data = await Clipboard.getData("text/plain");
-                        if (data?.text?.isNotEmpty ?? false) {
-                          if (widget.beforeTextPaste != null) {
-                            if (widget.beforeTextPaste!(data!.text)) {
-                              _showPasteDialog(data.text!);
+                onLongPress: widget.diableShowPasteDialog
+                    ? null
+                    : widget.enabled
+                        ? () async {
+                            var data = await Clipboard.getData("text/plain");
+                            if (data?.text?.isNotEmpty ?? false) {
+                              if (widget.beforeTextPaste != null) {
+                                if (widget.beforeTextPaste!(data!.text)) {
+                                  _showPasteDialog(data.text!);
+                                }
+                              } else {
+                                _showPasteDialog(data!.text!);
+                              }
                             }
-                          } else {
-                            _showPasteDialog(data!.text!);
                           }
-                        }
-                      }
-                    : null,
+                        : null,
                 child: Row(
                   mainAxisAlignment: widget.mainAxisAlignment,
                   children: _generateFields(),
